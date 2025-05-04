@@ -1,13 +1,13 @@
-use rodio::OutputStreamHandle;
 use std::fs::File;
 use std::io::BufReader;
 
 #[allow(unused_imports)]
-use rodio::{Decoder, OutputStream, source::Source};
+use rodio::{Decoder, OutputStream};
 
 pub fn play_audio(
     path: &str,
-    stream_handle: OutputStreamHandle
+    volume: f32,
+    sink: &rodio::Sink
 ) {
     let menu_loop_sound: Decoder<BufReader<File>> = Decoder::new(
         BufReader::new(
@@ -15,7 +15,15 @@ pub fn play_audio(
         )
     ).unwrap();
 
-    stream_handle.play_raw(menu_loop_sound.convert_samples()).unwrap();
+    sink.append(menu_loop_sound);
+    sink.play();
+    sink.set_volume(volume);
+}
+
+pub fn stop_audio(
+    sink: &rodio::Sink
+) {
+    sink.stop();
 }
 
 #[cfg(test)]
@@ -25,9 +33,18 @@ mod tests {
     #[test]
     fn audio_testing() {
         let (_stream, stream_handle) = OutputStream::try_default().unwrap();
+        let sink = rodio::Sink::try_new(&stream_handle).unwrap();
 
-        play_audio("./menu-music.ogg", stream_handle);
+        play_audio("./menu-music.ogg", 2.0, &sink);
 
-        std::thread::sleep(std::time::Duration::from_secs(5));
+        std::thread::sleep(std::time::Duration::from_secs(1));
+
+        stop_audio(&sink);
+
+        std::thread::sleep(std::time::Duration::from_secs(1));
+
+        play_audio("./menu-music.ogg", 2.0, &sink);
+
+        std::thread::sleep(std::time::Duration::from_secs(1));
     }
 }
