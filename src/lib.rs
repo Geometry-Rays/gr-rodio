@@ -26,6 +26,14 @@ pub fn stop_audio(
     sink.stop();
 }
 
+// This can only be used if your using an mp3 or a wav
+// If your using an ogg then it will panic
+pub fn restart_audio(
+    sink: &rodio::Sink
+) {
+    sink.try_seek(std::time::Duration::from_secs(0)).unwrap();
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -35,7 +43,7 @@ mod tests {
         let (_stream, stream_handle) = OutputStream::try_default().unwrap();
         let sink = rodio::Sink::try_new(&stream_handle).unwrap();
 
-        play_audio("./menu-music.ogg", 2.0, &sink);
+        play_audio("./menu-music.mp3", 2.0, &sink);
 
         std::thread::sleep(std::time::Duration::from_secs(1));
 
@@ -43,7 +51,19 @@ mod tests {
 
         std::thread::sleep(std::time::Duration::from_secs(1));
 
-        play_audio("./menu-music.ogg", 2.0, &sink);
+        play_audio("./menu-music.mp3", 2.0, &sink);
+
+        std::thread::sleep(std::time::Duration::from_secs(1));
+
+        restart_audio(&sink);
+
+        std::thread::sleep(std::time::Duration::from_secs_f32(0.5));
+
+        restart_audio(&sink);
+
+        std::thread::sleep(std::time::Duration::from_secs_f32(0.5));
+
+        restart_audio(&sink);
 
         std::thread::sleep(std::time::Duration::from_secs(1));
     }
