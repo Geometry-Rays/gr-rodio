@@ -48,3 +48,9 @@ mod tests {
         std::thread::sleep(std::time::Duration::from_secs(1));
     }
 }
+
+// This is so people can import stuff from rodio
+// This wrapper isn't a full wrapper so thats why this is here
+pub mod rodio_raw {
+    pub use rodio::*;
+}
