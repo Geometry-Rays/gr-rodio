@@ -2,11 +2,12 @@ use std::fs::File;
 use std::io::BufReader;
 
 #[allow(unused_imports)]
-use rodio::{Decoder, OutputStream};
+use rodio::{Decoder, OutputStream, Source};
 
 pub fn play_audio_path(
     path: &str,
     volume: f32,
+    loop_audio: bool,
     sink: &rodio::Sink
 ) {
     let menu_loop_sound: Decoder<BufReader<File>> = Decoder::new(
@@ -15,7 +16,11 @@ pub fn play_audio_path(
         )
     ).unwrap();
 
-    sink.append(menu_loop_sound);
+    if loop_audio {
+        sink.append(menu_loop_sound.repeat_infinite());
+    } else {
+        sink.append(menu_loop_sound);
+    }
     sink.play();
     sink.set_volume(volume);
 }
@@ -23,9 +28,14 @@ pub fn play_audio_path(
 pub fn play_audio(
     audio: Decoder<BufReader<File>>,
     volume: f32,
+    loop_audio: bool,
     sink: &rodio::Sink
 ) {
-    sink.append(audio);
+    if loop_audio {
+        sink.append(audio.repeat_infinite());
+    } else {
+        sink.append(audio);
+    }
     sink.play();
     sink.set_volume(volume);
 }
@@ -65,7 +75,7 @@ mod tests {
 
         let test_sound = load_audio("./menu-music.mp3");
 
-        play_audio_path("./menu-music.mp3", 2.0, &sink);
+        play_audio_path("./menu-music.mp3", 2.0, false, &sink);
 
         std::thread::sleep(std::time::Duration::from_secs(1));
 
@@ -73,7 +83,7 @@ mod tests {
 
         std::thread::sleep(std::time::Duration::from_secs(1));
 
-        play_audio(test_sound, 2.0, &sink);
+        play_audio(test_sound, 2.0, false, &sink);
 
         std::thread::sleep(std::time::Duration::from_secs(1));
 
@@ -87,7 +97,13 @@ mod tests {
 
         restart_audio(&sink);
 
-        std::thread::sleep(std::time::Duration::from_secs(1));
+        std::thread::sleep(std::time::Duration::from_secs(3));
+
+        stop_audio(&sink);
+
+        play_audio_path("./menu-music.mp3", 2.0, true, &sink);
+
+        std::thread::sleep(std::time::Duration::from_secs(100));
     }
 }
 

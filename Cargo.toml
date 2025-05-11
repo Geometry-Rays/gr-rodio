@@ -1,7 +1,7 @@
 [package]
 name = "gr-rodio"
 description = "GR Rodio is a simple wrapper of Rodio made for Geometry Rays Fyre"
-version = "1.1.0"
+version = "1.1.1"
 edition = "2024"
 authors = ["Puppet <doggyandkira2013@gmail.com>"]
 readme = "README.md"
